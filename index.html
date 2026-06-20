@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Wallet - Login</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    body { padding: 20px; }
+    .container { max-width: 400px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <div id="alertMessage" class="alert d-none"></div>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Inicializar valores por defecto si no existen
+      if (!localStorage.getItem('walletBalance')) {
+        localStorage.setItem('walletBalance', '60000');
+      }
+      if (!localStorage.getItem('walletTransactions')) {
+        const defaultTx = [
+          "Compra en línea - $50.00",
+          "Depósito - $100.00",
+          "Transferencia recibida - $75.00",
+          "Compra en línea - $5550.00",
+          "Depósito misma cuenta - $10500.00",
+          "Transferencia recibida - $7575.00"
+        ];
+        localStorage.setItem('walletTransactions', JSON.stringify(defaultTx));
+      }
+
+      // Uso de jQuery para enviar el formulario
+      $('#loginForm').submit(function(e) {
+        e.preventDefault();
+        
+        // Uso de Selectores de jQuery para obtener valores
+        const email = $('#email').val();
+        const password = $('#password').val();
+        const $alert = $('#alertMessage');
+
+        if (email === 'user@wallet.com' && password === '123456') {
+          // Uso de alertas de Bootstrap
+          $alert.removeClass('d-none alert-danger').addClass('alert-success').text("¡Inicio de sesión exitoso! Redirigiendo...");
+          
+          setTimeout(() => {
+            // Redirección pedida por la consigna
+            window.location.href = 'menu.html'; 
+          }, 1500);
+        } else {
+          $alert.removeClass('d-none alert-success').addClass('alert-danger').text("Credenciales incorrectas. Intente de nuevo.");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

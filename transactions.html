@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Wallet - Últimos Movimientos</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    body { padding: 20px; }
+    .container { max-width: 400px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Últimos Movimientos</h2>
+    
+    <div class="form-group my-3">
+      <label for="filterSelect">Filtrar por tipo:</label>
+      <select id="filterSelect" class="form-control">
+        <option value="todos">Todos los movimientos</option>
+        <option value="deposito">Depósitos / Entradas</option>
+        <option value="gasto">Envíos / Compras</option>
+      </select>
+    </div>
+
+    <ul id="transactionList" class="list-group"></ul>
+    
+    <br>
+    <a href="menu.html" class="btn btn-secondary btn-block">Volver al Menú Principal</a>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Obtener la lista real desde LocalStorage
+      const listaTransacciones = JSON.parse(localStorage.getItem('walletTransactions') || '[]');
+
+      // Función encargada de renderizar según el filtro
+      function mostrarUltimosMovimientos(filtro) {
+        const $container = $('#transactionList');
+        $container.empty(); // Limpiar lista visual
+
+        if (listaTransacciones.length === 0) {
+          $container.html('<li class="list-group-item text-muted text-center">No hay movimientos registrados</li>');
+          return;
+        }
+
+        listaTransacciones.forEach(tx => {
+          const esIngreso = tx.includes('Depósito') || tx.includes('recibida');
+          const esGasto = tx.includes('Envío') || tx.includes('Compra');
+
+          // Lógica del filtro
+          if (filtro === 'deposito' && !esIngreso) return;
+          if (filtro === 'gasto' && !esGasto) return;
+
+          // Crear el elemento de lista
+          const $li = $('<li class="list-group-item"></li>').text(tx);
+          
+          // Estilo según tipo (Abono o Cargo)
+          if (esIngreso) {
+            $li.addClass('list-group-item-success');
+          } else if (esGasto) {
+            $li.addClass('list-group-item-light');
+          }
+
+          $container.append($li);
+        });
+
+        // Si el filtro dejó vacía la lista
+        if ($container.children().length === 0) {
+          $container.html('<li class="list-group-item text-muted text-center">No hay coincidencias para este filtro</li>');
+        }
+      }
+
+      // Escuchar el cambio en el selector (Filtro dinámico con jQuery)
+      $('#filterSelect').change(function() {
+        const tipoSeleccionado = $(this).val();
+        mostrarUltimosMovimientos(tipoSeleccionado);
+      });
+
+      // Ejecución inicial (Muestra todos al cargar)
+      mostrarUltimosMovimientos('todos');
+    });
+  </script>
+</body>
+</html>

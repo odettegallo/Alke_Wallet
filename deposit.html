@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Wallet - Depositar</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    body { padding: 20px; }
+    .container { max-width: 400px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Depositar</h2>
+    
+    <div class="alert alert-secondary text-center">
+      Saldo actual: <strong id="currentBalanceDisplay">$0.00</strong>
+    </div>
+
+    <div id="alert-container"></div>
+
+    <form id="depositForm">
+      <div class="form-group">
+        <label for="depositAmount">Monto a depositar:</label>
+        <input type="number" step="0.01" class="form-control" id="depositAmount" placeholder="Ej: 500" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Realizar depósito</button>
+    </form>
+    
+    <div id="depositSummary" class="text-center mt-3 text-muted font-weight-bold"></div>
+    <br>
+    <a href="menu.html" class="btn btn-secondary btn-block">Volver al Menú Principal</a>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // 1. Mostrar el saldo actual al cargar la página
+      let currentBalance = parseFloat(localStorage.getItem('walletBalance') || '60000');
+      $('#currentBalanceDisplay').text(`$${currentBalance.toFixed(2)}`);
+
+      $('#depositForm').submit(function(e) {
+        e.preventDefault();
+        const amount = parseFloat($('#depositAmount').val());
+        const $alertContainer = $('#alert-container');
+        $alertContainer.empty(); // Limpiar alertas previas
+
+        if (isNaN(amount) || amount <= 0) {
+          const errorAlert = $('<div class="alert alert-danger">Por favor, ingrese un monto válido mayor a 0.</div>');
+          $alertContainer.append(errorAlert);
+          return;
+        }
+
+        // Actualizar saldo en LocalStorage
+        let newBalance = currentBalance + amount;
+        localStorage.setItem('walletBalance', newBalance.toString());
+
+        // Registrar Movimiento
+        let transactions = JSON.parse(localStorage.getItem('walletTransactions') || '[]');
+        transactions.unshift(`Depósito - $${amount.toFixed(2)}`);
+        localStorage.setItem('walletTransactions', JSON.stringify(transactions));
+
+        // 2. Agregar una leyenda con el monto depositado debajo del formulario
+        $('#depositSummary').text(`Monto depositado recientemente: $${amount.toFixed(2)}`);
+
+        // 3. Mejoras en el mensaje de éxito (Alerta dinámica Bootstrap)
+        const successAlert = $('<div class="alert alert-success">¡Depósito exitoso! Nuevo saldo guardado.</div>');
+        $alertContainer.append(successAlert);
+
+        // 4. Redirigir después del depósito (2 segundos de retraso)
+        setTimeout(() => {
+          window.location.href = 'menu.html';
+        }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
